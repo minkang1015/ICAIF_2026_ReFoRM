@@ -19,8 +19,8 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/libertinus-serif-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/libertinus-serif-600.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=open-results-1">
-<script src="app.js?v=results-explorer-1" defer></script>
+<link rel="stylesheet" href="styles.css?v=open-results-2">
+<script src="app.js?v=results-explorer-2" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -52,13 +52,6 @@
   <section class="hero" id="top" aria-labelledby="paper-title">
     <p class="venue"><a href="https://icaif2026.org/" target="_blank" rel="noopener">ICAIF 2026</a></p>
     <h1 id="paper-title">From Hindsight to Foresight<span class="subtitle">Adapting Reusable Reasoning Structures from Recurring Financial Events</span></h1>
-
-    <p class="hero-summary">Reuse past reasoning. Recheck every relationship.<br>Forecast the next financial event.</p>
-    <a class="hero-highlights" href="#results" aria-label="Explore the main results: accuracy 49.7 to 55.0 percent; Brier score 0.231 to 0.217, five-model average">
-      <span><small>ACCURACY ↑</small><strong>49.7% <b aria-hidden="true">→</b> 55.0%</strong></span>
-      <span><small>BRIER SCORE ↓</small><strong>0.231 <b aria-hidden="true">→</b> 0.217</strong></span>
-      <span class="hero-results-link">Five-model average<br><b>Explore results ↗</b></span>
-    </a>
 
     <ul class="authors" aria-label="Authors">
       <li>Sangjin Jin<sup>1,*</sup></li>
@@ -333,10 +326,6 @@
       <div><dt>Structure Memory</dt><dd>An outcome-redacted historical event graph used without reconstruction.</dd></div>
     </dl>
       </details>
-      <figure class="table-figure results-values">
-        <figcaption id="results-table-caption"><b>Five-model average.</b> Mean ± standard deviation over three runs. Accuracy is shown as a percentage.</figcaption>
-        <div class="table-scroll"><table class="booktabs numeric" id="results-table"><thead><tr><th scope="col">Method</th><th scope="col">Accuracy ↑</th><th scope="col">Brier ↓</th><th scope="col">NLL ↓</th></tr></thead><tbody></tbody></table></div>
-      </figure>
     </div>
     <div class="results-across-models is-mid"><h3>Across all five models</h3><div class="result-consistency"><p><strong>5 / 5 models</strong><span>Best Brier score and NLL across all seven methods.</span></p><p><strong>4 / 5 models</strong><span>Best accuracy across all seven methods.</span></p></div><p class="result-exception">On GPT-5 mini, Factor Memory and Case Memory have the highest accuracy. ReFoRM still has the best Brier score and NLL.</p></div>
     <h3 class="results-category-title is-wide">Results by financial category</h3>

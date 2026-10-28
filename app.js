@@ -350,31 +350,6 @@
     $('#method-chart-caption').textContent = `${modelLabel} · Means over three runs. All bars start at zero. ReFoRM and the selected baseline are highlighted.`;
   }
 
-  function renderResultsTable(rows, modelLabel) {
-    const body = $('#results-table tbody');
-    if (!body) return;
-    const metrics = Object.entries(METRICS);
-    const marks = metrics.map(([key, metric]) => {
-      const unique = [...new Set(rows.map(row => row[metric.index]))].sort((a, b) => metric.higher ? b - a : a - b);
-      return { key, ...metric, best: unique[0], second: unique[1] };
-    });
-    const cell = (row, mark) => {
-      const value = row[mark.index];
-      let text = formatResult(value, mark.key);
-      if (value === mark.best) text = `<b>${text}</b>`;
-      else if (value === mark.second) text = `<u>${text}</u>`;
-      const sd = mark.key === 'accuracy' ? `${(row[mark.index + 1] * 100).toFixed(1)} pp` : row[mark.index + 1].toFixed(3);
-      return `<td${mark.key === selectedMetric ? ' class="is-selected-metric"' : ''}>${text}<span class="sd">±${sd}</span></td>`;
-    };
-    body.innerHTML = rows.map((row, index) => {
-      const group = index === 0 ? '<tr class="group-row"><th scope="rowgroup" colspan="4">No-memory baselines</th></tr>' : index === 2 ? '<tr class="group-row"><th scope="rowgroup" colspan="4">Resolved-event memory</th></tr>' : '';
-      const cls = index === 6 ? 'is-ours' : index === comparison ? 'is-comparison' : '';
-      return `${group}<tr${cls ? ` class="${cls}"` : ''}><th scope="row">${METHODS[index]}</th>${marks.map(mark => cell(row, mark)).join('')}</tr>`;
-    }).join('');
-    $$('#results-table thead th').forEach((th, index) => th.classList.toggle('is-selected-metric', index === marks.findIndex(mark => mark.key === selectedMetric) + 1));
-    $('#results-table-caption').textContent = `${modelLabel} · 100 forecast targets · Mean ± standard deviation over three runs. Accuracy is a percentage; its standard deviation is in percentage points (pp). Best and second-best per metric are in bold and underlined.`;
-  }
-
   function renderResults() {
     const rows = RESULTS[selectedModel];
     const modelLabel = MODELS.find(model => model.key === selectedModel).label;
@@ -388,7 +363,6 @@
     if (context) context.textContent = definition ? `${METHODS[comparison]}: ${$('dd', definition).textContent.trim()}` : `Comparing ReFoRM with ${METHODS[comparison]}.`;
     renderResultCards(rows);
     renderMethodChart(rows, modelLabel);
-    renderResultsTable(rows, modelLabel);
   }
 
   if ($('#method-chart')) {

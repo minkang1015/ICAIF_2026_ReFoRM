@@ -10,7 +10,7 @@ Official implementation: https://github.com/jinsaaang/reform. The BibTeX on the 
 
 - `index.html`: centered title block with the KakaoBank collaboration credit, overview figure, abstract, recurring financial events, method with the interactive FOMC example, results, reasoning analysis, case studies and citation. Affiliations, explanations, category results, and reasoning results are visible directly. Only baseline definitions use an expandable disclosure; the collaboration credit appears once in the hero.
 - `styles.css`: layout, light and dark color schemes, responsive rules, and reduced-motion support.
-- `app.js`: the interactive example with pointer, keyboard, and touch relation selection, the synchronized model/metric/reference results explorer and Table 3 table, case-study tabs, BibTeX copy, and section highlighting in the header.
+- `app.js`: the interactive example with pointer, keyboard, and touch relation selection, the synchronized model/metric/reference result cards and seven-method comparison chart, case-study tabs, BibTeX copy, and section highlighting in the header.
 - `assets/fig-motivation.svg`, `assets/fig-overview.svg`: Figures 1 and 2 as vector SVG, converted from the authors' figure PDFs and cropped to content.
 - `assets/fonts/`: self-hosted Libertinus Serif and Libertinus Sans (SIL Open Font License, see `LICENSE-OFL.txt`).
 - `assets/og-image.png`: link preview image.
