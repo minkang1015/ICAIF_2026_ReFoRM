@@ -280,155 +280,135 @@
     qwen:     [[.523,.021,.228,.005,.984,.035],[.440,.000,.244,.003,1.019,.013],[.530,.017,.233,.008,1.017,.054],[.507,.015,.234,.006,1.024,.059],[.517,.032,.237,.005,1.050,.029],[.533,.040,.232,.004,1.025,.027],[.597,.015,.217,.006,.936,.036]]
   };
   const MODELS = [
-    { key: 'gemini', label: 'Gemini 2.5 Flash Lite', short: 'Gemini' },
-    { key: 'gpt', label: 'GPT-5 mini', short: 'GPT-5 mini' },
-    { key: 'deepseek', label: 'DeepSeek V3.2', short: 'DeepSeek' },
-    { key: 'llama', label: 'Llama 4 Maverick', short: 'Llama 4' },
-    { key: 'qwen', label: 'Qwen Plus', short: 'Qwen Plus' },
-    { key: 'average', label: 'Five-model average', short: 'Average' }
+    { key: 'average', label: 'Five-model average' },
+    { key: 'gemini', label: 'Gemini 2.5 Flash Lite' },
+    { key: 'gpt', label: 'GPT-5 mini' },
+    { key: 'deepseek', label: 'DeepSeek V3.2' },
+    { key: 'llama', label: 'Llama 4 Maverick' },
+    { key: 'qwen', label: 'Qwen Plus' }
   ];
   const METRICS = {
-    brier: { index: 2, label: 'Brier score', higher: false },
-    nll: { index: 4, label: 'NLL', higher: false },
-    accuracy: { index: 0, label: 'Accuracy', higher: true }
+    accuracy: { index: 0, label: 'Accuracy', higher: true, scale: 1, help: 'Share of targets assigned the correct answer. Higher is better.' },
+    brier: { index: 2, label: 'Brier score', higher: false, scale: .30, help: 'Measures the gap between forecast probabilities and outcomes. Lower is better.' },
+    nll: { index: 4, label: 'Log loss (NLL)', higher: false, scale: 1.25, help: 'Penalizes low probabilities assigned to the outcome that occurs. Lower is better.' }
   };
-  const fmt = v => v.toFixed(3);
-  let metric = 'brier';
+  let selectedModel = 'average';
+  let selectedMetric = 'accuracy';
+  let comparison = 0;
+  const formatResult = (value, key) => key === 'accuracy' ? `${(value * 100).toFixed(1)}%` : value.toFixed(3);
 
-  function niceTicks(lo, hi, count) {
-    const raw = (hi - lo) / count;
-    const power = Math.pow(10, Math.floor(Math.log10(raw)));
-    const unit = [1, 2, 2.5, 5, 10].map(m => m * power).find(s => s >= raw) || power * 10;
-    const ticks = [];
-    for (let t = Math.ceil(lo / unit) * unit; t <= hi + 1e-9; t += unit) ticks.push(Number(t.toFixed(6)));
-    return ticks;
-  }
-
-  const strip = $('#strip');
-  const tip = $('#strip-tip');
-
-  function renderStrip() {
-    if (!strip) return;
-    const m = METRICS[metric];
-    const width = Math.max(280, strip.clientWidth);
-    const narrow = width < 560;
-    const labelW = narrow ? 92 : 178;
-    const padR = 14;
-    const rowH = narrow ? 40 : 44;
-    const sepGap = 14;
-    const axisH = 28;
-    const values = MODELS.flatMap(model => RESULTS[model.key].map(row => row[m.index]));
-    let lo = Math.min(...values);
-    let hi = Math.max(...values);
-    const span = hi - lo;
-    lo -= span * 0.06;
-    hi += span * 0.06;
-    const x = v => labelW + (v - lo) / (hi - lo) * (width - labelW - padR);
-    const rowY = r => r * rowH + rowH / 2 + (r === MODELS.length - 1 ? sepGap : 0);
-    const plotBottom = MODELS.length * rowH + sepGap;
-    const height = plotBottom + axisH;
-    const ticks = niceTicks(lo, hi, narrow ? 4 : 6);
-
-    let out = `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" aria-hidden="true">`;
-    ticks.forEach(t => {
-      const tx = x(t).toFixed(1);
-      out += `<line class="grid-line" x1="${tx}" x2="${tx}" y1="0" y2="${plotBottom}"/>`;
-      out += `<text class="tick" x="${tx}" y="${plotBottom + 19}" text-anchor="middle">${metric === 'accuracy' ? t.toFixed(2) : t.toFixed(t < 0.5 ? 3 : 2)}</text>`;
+  function renderResultCards(rows) {
+    Object.entries(METRICS).forEach(([key, metric]) => {
+      const card = $(`[data-result-card="${key}"]`);
+      if (!card) return;
+      const baseline = rows[comparison][metric.index];
+      const ours = rows[6][metric.index];
+      const difference = metric.higher ? ours - baseline : baseline - ours;
+      const state = Math.abs(difference) < 1e-9 ? 'equal' : difference > 0 ? 'better' : 'worse';
+      $('[data-comparison-name]', card).textContent = METHODS[comparison];
+      $('[data-comparison-value]', card).textContent = formatResult(baseline, key);
+      $('[data-reform-value]', card).textContent = formatResult(ours, key);
+      $('[data-baseline-bar]', card).style.width = `${baseline / metric.scale * 100}%`;
+      $('[data-reform-bar]', card).style.width = `${ours / metric.scale * 100}%`;
+      card.dataset.state = state;
+      card.classList.toggle('is-selected', key === selectedMetric);
+      const gain = $('.result-gain', card);
+      gain.dataset.state = state;
+      if (key === 'accuracy') {
+        const sign = state === 'equal' ? '' : ours > baseline ? '+' : '−';
+        gain.textContent = `${sign}${(Math.abs(ours - baseline) * 100).toFixed(1)} percentage points`;
+      } else if (state === 'equal') {
+        gain.textContent = `Same ${key === 'brier' ? 'Brier score' : 'log loss'}`;
+      } else {
+        const percentage = Math.abs((baseline - ours) / baseline * 100).toFixed(1);
+        gain.textContent = `${percentage}% ${state === 'better' ? 'lower' : 'higher'} ${key === 'brier' ? 'error' : 'log loss'}`;
+      }
     });
-    const sepY = (MODELS.length - 1) * rowH + sepGap / 2;
-    out += `<line class="avg-sep" x1="0" x2="${width - padR}" y1="${sepY}" y2="${sepY}"/>`;
-    MODELS.forEach((model, r) => {
-      const y = rowY(r);
-      const rows = RESULTS[model.key];
-      out += `<text class="row-label${model.key === 'average' ? ' is-avg' : ''}" x="0" y="${y}" dominant-baseline="central">${narrow ? model.short : model.label}</text>`;
-      out += `<line class="row-line" x1="${labelW}" x2="${width - padR}" y1="${y}" y2="${y}"/>`;
-      const point = (j, cls, radius) => `<circle class="${cls}" cx="${x(rows[j][m.index]).toFixed(1)}" cy="${y}" r="${radius}" data-method="${METHODS[j]}" data-model="${model.label}" data-value="${fmt(rows[j][m.index])}"><title>${METHODS[j]}, ${model.label}: ${fmt(rows[j][m.index])}</title></circle>`;
-      for (let j = 1; j <= 5; j++) out += point(j, 'pt-other', 4.5);
-      out += point(0, 'pt-direct', 5.5);
-      out += point(6, 'pt-reform', 6.5);
-    });
-    out += '</svg>';
-    strip.innerHTML = out;
-
-    const better = m.higher ? 'Higher' : 'Lower';
-    $('#strip-caption').textContent = `${m.label} for each method and model, as a mean over three runs. ${better} is better. Hover over or tap a point to see the method.`;
-    const lead = metric === 'accuracy'
-      ? 'ReFoRM has the highest accuracy for four of the five models and on average.'
-      : `ReFoRM has the lowest ${m.label} for every model.`;
-    strip.setAttribute('aria-label', `${m.label} of seven methods for each of five models and their average. ${lead}`);
   }
 
-  function showTip(circle) {
-    const figure = strip.closest('figure');
-    const fb = figure.getBoundingClientRect();
-    const cb = circle.getBoundingClientRect();
-    $$('circle.is-hot', strip).forEach(c => c.classList.remove('is-hot'));
-    circle.classList.add('is-hot');
-    tip.textContent = `${circle.dataset.method}: ${circle.dataset.value}`;
-    tip.hidden = false;
-    const left = cb.left + cb.width / 2 - fb.left;
-    const half = tip.offsetWidth / 2;
-    tip.style.left = Math.max(half + 6, Math.min(fb.width - half - 6, left)) + 'px';
-    tip.style.top = (cb.top - fb.top) + 'px';
-  }
-  function hideTip() {
-    if (!tip) return;
-    tip.hidden = true;
-    $$('circle.is-hot', strip).forEach(c => c.classList.remove('is-hot'));
+  function chartCeiling(value) {
+    const power = Math.pow(10, Math.floor(Math.log10(value)));
+    return [1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find(unit => unit * power >= value - 1e-9) * power;
   }
 
-  if (strip) {
-    strip.addEventListener('pointerover', event => { if (event.target.matches('circle')) showTip(event.target); });
-    strip.addEventListener('pointerout', event => { if (event.target.matches('circle') && event.pointerType === 'mouse') hideTip(); });
-    strip.addEventListener('pointerdown', event => { if (event.target.matches('circle')) showTip(event.target); else hideTip(); });
-    document.addEventListener('pointerdown', event => { if (!strip.contains(event.target)) hideTip(); });
-    $$('[data-metric]').forEach(button => button.addEventListener('click', () => {
-      metric = button.dataset.metric;
-      $$('[data-metric]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
-      hideTip();
-      renderStrip();
-    }));
-    let lastWidth = 0;
-    const onResize = () => {
-      if (Math.abs(strip.clientWidth - lastWidth) < 2) return;
-      lastWidth = strip.clientWidth;
-      hideTip();
-      renderStrip();
-    };
-    if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(strip);
-    else window.addEventListener('resize', onResize, { passive: true });
-    renderStrip();
+  function renderMethodChart(rows, modelLabel) {
+    const chart = $('#method-chart');
+    if (!chart) return;
+    const metric = METRICS[selectedMetric];
+    const direction = metric.higher ? 'Higher is better.' : 'Lower is better.';
+    const maximum = metric.higher ? 1 : chartCeiling(Math.max(...rows.map(row => row[metric.index])));
+    const order = [6, comparison, ...METHODS.map((_, index) => index).filter(index => index !== 6 && index !== comparison)];
+    chart.setAttribute('role', 'list');
+    chart.setAttribute('aria-label', `${metric.label}, ${modelLabel}, 100 forecast targets, means over three runs. ${direction} Comparison baseline: ${METHODS[comparison]}.`);
+    chart.innerHTML = order.map(index => {
+      const value = rows[index][metric.index];
+      const cls = index === 6 ? ' is-ours' : index === comparison ? ' is-comparison' : '';
+      return `<div class="method-bar-row${cls}" role="listitem"><span class="method-bar-label">${METHODS[index]}</span><div class="method-bar-track" aria-hidden="true"><span class="method-bar-fill" style="width:${value / maximum * 100}%"></span></div><strong class="method-bar-value">${formatResult(value, selectedMetric)}</strong></div>`;
+    }).join('') + `<div class="method-chart-axis" aria-hidden="true"><span>0</span><span>${selectedMetric === 'accuracy' ? '100%' : maximum.toFixed(2)}</span></div>`;
+    $('#method-chart-title').textContent = `${metric.label} · ${modelLabel}`;
+    $('#metric-help').textContent = metric.help;
+    $('#method-chart-caption').textContent = `${modelLabel} · Means over three runs. All bars start at zero. ReFoRM and the selected baseline are highlighted.`;
   }
 
-  function renderTable(model) {
+  function renderResultsTable(rows, modelLabel) {
     const body = $('#results-table tbody');
     if (!body) return;
-    const rows = RESULTS[model];
-    const marks = [0, 2, 4].map(c => {
-      const higher = c === 0;
-      const unique = [...new Set(rows.map(r => r[c]))].sort((a, b) => higher ? b - a : a - b);
-      return { c, best: unique[0], second: unique[1] };
+    const metrics = Object.entries(METRICS);
+    const marks = metrics.map(([key, metric]) => {
+      const unique = [...new Set(rows.map(row => row[metric.index]))].sort((a, b) => metric.higher ? b - a : a - b);
+      return { key, ...metric, best: unique[0], second: unique[1] };
     });
-    const cell = (value, sd, mark) => {
-      let text = fmt(value);
+    const cell = (row, mark) => {
+      const value = row[mark.index];
+      let text = formatResult(value, mark.key);
       if (value === mark.best) text = `<b>${text}</b>`;
       else if (value === mark.second) text = `<u>${text}</u>`;
-      return `<td>${text}<span class="sd">±${fmt(sd)}</span></td>`;
+      const sd = mark.key === 'accuracy' ? `${(row[mark.index + 1] * 100).toFixed(1)} pp` : row[mark.index + 1].toFixed(3);
+      return `<td${mark.key === selectedMetric ? ' class="is-selected-metric"' : ''}>${text}<span class="sd">±${sd}</span></td>`;
     };
-    let html = '';
-    rows.forEach((row, i) => {
-      if (i === 0) html += '<tr class="group-row"><th scope="rowgroup" colspan="4">No-memory baselines</th></tr>';
-      if (i === 2) html += '<tr class="group-row"><th scope="rowgroup" colspan="4">Resolved-event memory</th></tr>';
-      html += `<tr${i === 6 ? ' class="is-ours"' : ''}><th scope="row">${METHODS[i]}</th>${marks.map(mk => cell(row[mk.c], row[mk.c + 1], mk)).join('')}</tr>`;
-    });
-    body.innerHTML = html;
+    body.innerHTML = rows.map((row, index) => {
+      const group = index === 0 ? '<tr class="group-row"><th scope="rowgroup" colspan="4">No-memory baselines</th></tr>' : index === 2 ? '<tr class="group-row"><th scope="rowgroup" colspan="4">Resolved-event memory</th></tr>' : '';
+      const cls = index === 6 ? 'is-ours' : index === comparison ? 'is-comparison' : '';
+      return `${group}<tr${cls ? ` class="${cls}"` : ''}><th scope="row">${METHODS[index]}</th>${marks.map(mark => cell(row, mark)).join('')}</tr>`;
+    }).join('');
+    $$('#results-table thead th').forEach((th, index) => th.classList.toggle('is-selected-metric', index === marks.findIndex(mark => mark.key === selectedMetric) + 1));
+    $('#results-table-caption').textContent = `${modelLabel} · 100 forecast targets · Mean ± standard deviation over three runs. Accuracy is a percentage; its standard deviation is in percentage points (pp). Best and second-best per metric are in bold and underlined.`;
   }
 
-  $$('[data-model]').forEach(button => button.addEventListener('click', () => {
-    $$('[data-model]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
-    renderTable(button.dataset.model);
-  }));
-  renderTable('average');
+  function renderResults() {
+    const rows = RESULTS[selectedModel];
+    const modelLabel = MODELS.find(model => model.key === selectedModel).label;
+    $$('button[data-model]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.model === selectedModel)));
+    $$('button[data-metric]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.metric === selectedMetric)));
+    const selector = $('#comparison-method');
+    if (selector) selector.value = String(comparison);
+    $('#result-scope').textContent = `${modelLabel} · 100 forecast targets · Means over three runs`;
+    const definition = $$('.baselines div').find(item => $('dt', item).textContent.trim() === METHODS[comparison]);
+    const context = $('#comparison-context');
+    if (context) context.textContent = definition ? `${METHODS[comparison]}: ${$('dd', definition).textContent.trim()}` : `Comparing ReFoRM with ${METHODS[comparison]}.`;
+    renderResultCards(rows);
+    renderMethodChart(rows, modelLabel);
+    renderResultsTable(rows, modelLabel);
+  }
+
+  if ($('#method-chart')) {
+    $$('button[data-model]').forEach(button => button.addEventListener('click', () => {
+      selectedModel = button.dataset.model;
+      renderResults();
+    }));
+    $$('button[data-metric]').forEach(button => button.addEventListener('click', () => {
+      selectedMetric = button.dataset.metric;
+      renderResults();
+    }));
+    $('#comparison-method').addEventListener('change', event => {
+      const next = Number(event.target.value);
+      if (Number.isInteger(next) && next >= 0 && next < 6) {
+        comparison = next;
+        renderResults();
+      }
+    });
+    renderResults();
+  }
 
   /* ------------------------------------------------------------------
      Case study tabs
