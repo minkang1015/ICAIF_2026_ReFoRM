@@ -14,7 +14,7 @@ Official implementation: https://github.com/jinsaaang/reform. The BibTeX on the 
 - `assets/fig-motivation.svg`, `assets/fig-overview.svg`: Figures 1 and 2 as vector SVG, converted from the authors' figure PDFs and cropped to content.
 - `assets/fonts/`: self-hosted Libertinus Serif and Libertinus Sans (SIL Open Font License, see `LICENSE-OFL.txt`).
 - `assets/og-image.png`: link preview image.
-- `assets/kakaobank-signature-black.png`: collaboration credit.
+- `assets/kakaobank-signature-primary.png`: collaboration credit.
 - `paper.pdf`: supplied manuscript, unchanged.
 
 ## Evidence and scope
