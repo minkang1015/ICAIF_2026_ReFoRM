@@ -325,8 +325,8 @@ sup { font-size: .62em; line-height: 0; vertical-align: .55em; }
 }
 .figure figcaption { margin-top: 12px; }
 figcaption b { font-weight: 600; color: var(--ink); }
-.figure-side { display: grid; grid-template-columns: minmax(0, 500px) minmax(0, 1fr); gap: 28px; align-items: end; }
-.figure-side figcaption { margin-top: 0; max-width: 36ch; }
+.motivation-figure .plate {width:min(700px,100%);margin-inline:auto}
+.motivation-figure .figure-caption {max-width:700px;margin:24px auto 0;text-align:center}
 
 .stages { list-style: none; margin: 0; padding: 0; counter-reset: stage; }
 .stages > li { counter-increment: stage; position: relative; padding-left: 44px; margin-bottom: 28px; }
@@ -660,8 +660,6 @@ figcaption b { font-weight: 600; color: var(--ink); }
   .graph[data-step="3"] .node-case::after, .graph[data-step="3"] .node-target::after { border-top-color: var(--ink-2); }
   .step-desc { min-height: 0; font-size: 17px; }
   .evidence-cols { grid-template-columns: 1fr; }
-  .figure-side { grid-template-columns: 1fr; gap: 12px; }
-  .figure-side figcaption { max-width: none; }
   .plate { padding: 10px; }
   .states, .baselines { grid-template-columns: 1fr; }
   .chart-figure { padding: 14px 14px 14px; }
