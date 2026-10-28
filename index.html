@@ -19,7 +19,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/libertinus-serif-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/libertinus-serif-600.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=open-results-2">
+<link rel="stylesheet" href="styles.css?v=captions-cases-1">
 <script src="app.js?v=results-explorer-2" defer></script>
 </head>
 <body>
@@ -95,7 +95,7 @@
 
   <figure class="teaser figure">
     <a class="plate" href="assets/fig-overview.svg" target="_blank" rel="noopener" aria-label="Open the overview figure at full size"><img src="assets/fig-overview.svg" width="790" height="293" alt="Overview of ReFoRM for the question of whether the Fed cuts rates at the next FOMC meeting. Hindsight graphs from resolved meetings link factors such as inflation cooling, labor weakening, and resilient growth to a rate cut. Current evidence forms an evidence ledger, retrieved paths are reconstructed with relation-level and path-level assessments, and a forecaster produces probabilities with structured reasoning." loading="lazy"></a>
-    <figcaption><b>Overview of ReFoRM.</b> A resolved occurrence is distilled into reusable factors, conditional paths, and alternatives after removing outcome-specific content. For a later occurrence in the same family, this structure guides relation testing, pre-cutoff evidence determines which relations remain supported, and the resulting assessment is mapped to the new answer boundaries.</figcaption>
+    <figcaption class="figure-caption"><span class="caption-title">Overview of ReFoRM</span><span class="caption-description">A resolved occurrence is distilled into reusable factors, conditional paths, and alternatives after removing outcome-specific content. For a later occurrence in the same family, this structure guides relation testing, pre-cutoff evidence determines which relations remain supported, and the resulting assessment is mapped to the new answer boundaries.</span></figcaption>
   </figure>
 
   <section class="section" id="abstract" aria-labelledby="abstract-h">
@@ -106,7 +106,9 @@
       <li><strong>The result.</strong> Forecasts become more accurate, with better probability estimates across five model families.</li>
     </ul>
 
+    <details class="abstract-details"><summary>Read the full abstract</summary>
     <p class="prose abstract">Forecasting real-world events requires reasoning under uncertainty from information available at a fixed cutoff. Recent work has improved how large language models (LLMs) retrieve evidence and produce probabilistic forecasts, but each question is treated independently even when similar events recur. Resolved occurrences carry experience for later forecasts, yet past outcomes and case summaries do not preserve the relationships that made an earlier occurrence informative. We develop ReFoRM (Recurrent-event Forecasting with Reasoning Memory), which organizes reasoning from resolved events into predictive paths, retrieves relevant paths for a later occurrence, and reconstructs their relations using evidence at the new forecast cutoff. We evaluate ReFoRM on the Recurring Financial Events Set, which contains 300 questions across 40 recurring financial event families and uses earlier occurrences as hindsight for 100 forecast targets. Across five LLMs and six baselines, ReFoRM improves categorical and probabilistic forecasting performance. Further analyses show that validating historical relations with current evidence and reconstructing them enhances forecasting. Reasoning evaluation also demonstrates stronger evidence grounding, logical validity, and mechanism specificity.</p>
+    </details>
 
   </section>
 
@@ -118,11 +120,11 @@
 
 <figure class="figure figure-side is-mid">
       <a class="plate" href="assets/fig-motivation.svg" target="_blank" rel="noopener" aria-label="Open the motivation figure at full size"><img src="assets/fig-motivation.svg" width="918" height="682" alt="Conventional forecasting treats questions on politics, weather, and sports as one-off tasks. A recurring financial event, such as Walmart's quarterly revenue growth, has resolved occurrences in Q1 to Q3 whose reasoning structure is re-evaluated with current evidence for the unresolved Q4." loading="lazy"></a>
-      <figcaption><b>Motivation from resolved events.</b> The same outcome can arise from different reasoning paths. Relationships from resolved recurring events help distinguish supported from unsupported reasoning in new instances.</figcaption>
+      <figcaption class="figure-caption"><span class="caption-title">Motivation from resolved events</span><span class="caption-description">The same outcome can arise from different reasoning paths. Relationships from resolved recurring events help distinguish supported from unsupported reasoning in new instances.</span></figcaption>
     </figure>
 <p class="prose">The Recurring Financial Events Set groups comparable occurrences into 40 event families across five categories. A family fixes the entity or series, target quantity, unit, comparison rule, and resolution source, while the forecast cutoff, available evidence, numerical boundaries, and outcome change from one occurrence to the next. Each family recurs seven or eight times, which gives 300 questions: 190 with three classes and 110 binary. Questions are generated from immutable snapshots of 32 FRED series and SEC Company Facts for eight issuers, and class boundaries use only observations available before the cutoff.</p>
 <figure class="table-figure is-wide">
-      <figcaption><b>Coverage of the 40 event families.</b> Each category contains 8 families and 60 questions.</figcaption>
+      <figcaption class="figure-caption"><span class="caption-title">Coverage of the 40 event families</span><span class="caption-description">Each category contains 8 families and 60 questions.</span></figcaption>
       <div class="table-scroll">
         <table class="booktabs coverage">
           <thead><tr><th scope="col">Category</th><th scope="col">Event families</th><th scope="col">Prediction target</th></tr></thead>
@@ -136,7 +138,7 @@
         </table>
       </div>
     </figure>
-<figure class="split" aria-labelledby="split-caption">
+<figure class="split" aria-label="Reference questions and forecast targets">
       <div class="split-track" aria-hidden="true">
         <div class="split-ref"><i></i><i></i><i></i><i></i><i></i></div>
         <div class="split-target"><i></i><i></i><i class="maybe"></i></div>
@@ -145,7 +147,6 @@
         <p><b>Reference questions.</b> The first five occurrences of each family, 200 questions in total, with cutoffs between January 2023 and August 2025.</p>
         <p><b>Forecast targets.</b> The remaining two or three occurrences, 100 questions in total, with cutoffs between March 2025 and June 2026.</p>
       </div>
-      <figcaption id="split-caption"><b>Chronological split within each family.</b> The split is chronological within each family, so every target has five resolved cases from its own family. Questions from the same release stay on the same side of the split, and target outcomes are never supplied to any method.</figcaption>
     </figure>
 
 
@@ -330,7 +331,7 @@
     <div class="results-across-models is-mid"><h3>Across all five models</h3><div class="result-consistency"><p><strong>5 / 5 models</strong><span>Best Brier score and NLL across all seven methods.</span></p><p><strong>4 / 5 models</strong><span>Best accuracy across all seven methods.</span></p></div><p class="result-exception">On GPT-5 mini, Factor Memory and Case Memory have the highest accuracy. ReFoRM still has the best Brier score and NLL.</p></div>
     <h3 class="results-category-title is-wide">Results by financial category</h3>
     <figure class="table-figure is-wide">
-      <figcaption><b>Brier score by category.</b> Pooled across five models using one run per model. Best results are in bold.</figcaption>
+      <figcaption class="figure-caption"><span class="caption-title">Brier score by category</span><span class="caption-description">Pooled across five models using one run per model. Best results are in bold.</span></figcaption>
       <div class="table-scroll">
         <table class="booktabs numeric">
           <thead><tr><th scope="col">Method</th><th scope="col">Earnings</th><th scope="col">Energy</th><th scope="col">Macro</th><th scope="col">Markets</th><th scope="col">Policy</th><th scope="col">Average</th></tr></thead>
@@ -360,7 +361,7 @@
     <p class="prose">A separate LLM judge rated all 700 traces from one Gemini 2.5 Flash Lite run on five dimensions, without seeing the outcome or the forecasting scores. ReFoRM has the highest mean on every dimension, and none of its correct forecasts rests on a trace scored at or below 2.5. These scores are not ground truth and cover one model and one seed, so they serve as supporting evidence.</p>
 
     <figure class="table-figure is-wide">
-      <figcaption><b>Reasoning scores.</b> Ratings from one to five for a single Gemini 2.5 Flash Lite run. The last column is the share of a method's correct forecasts whose trace scored at or below 2.5.</figcaption>
+      <figcaption class="figure-caption"><span class="caption-title">Reasoning scores</span><span class="caption-description">Ratings from one to five for a single Gemini 2.5 Flash Lite run. The last column is the share of a method's correct forecasts whose trace scored at or below 2.5.</span></figcaption>
       <div class="table-scroll">
         <table class="booktabs numeric">
           <thead><tr><th scope="col">Method</th><th scope="col">Grounding</th><th scope="col">Validity</th><th scope="col">Alignment</th><th scope="col">Probability</th><th scope="col">Mechanism</th><th scope="col">Mean</th><th scope="col">Correct, ≤ 2.5</th></tr></thead>
@@ -389,7 +390,7 @@
         <div class="bar-row"><span class="bar-label">Unresolved</span><span class="bar-track"><span class="bar" style="--v:.008"></span></span><span class="bar-value">0.008</span></div>
         <div class="bar-axis" aria-hidden="true"><span>0</span><span>0.01</span><span>0.02</span></div>
       </div>
-      <figcaption><b>Brier reduction by assessment profile.</b> Reduction of ReFoRM relative to Direct Forecast across five models from a single run. Supported structures have preserved but no changed relations, mixed structures have both, and unresolved structures have neither.</figcaption>
+      <figcaption class="figure-caption"><span class="caption-title">Brier reduction by assessment profile</span><span class="caption-description">Reduction of ReFoRM relative to Direct Forecast across five models from a single run. Supported structures have preserved but no changed relations, mixed structures have both, and unresolved structures have neither.</span></figcaption>
     </figure>
 
 
@@ -431,7 +432,7 @@
           <p class="case-pick">Predicts <b>Within</b> with probability 0.60</p>
         </div>
       </div>
-      <figure class="numberline-figure">
+      <figure class="case-visual numberline-figure">
         <div class="numberline" role="img" aria-label="Number line with boundaries at 0.146 and 0.299 percent. Direct Forecast estimates 0.099 percent, in the Below interval. ReFoRM estimates about 0.20 percent, in the Within interval.">
           <div class="nl-zone nl-below"><span>Below</span></div>
           <div class="nl-zone nl-within"><span>Within</span></div>
@@ -442,7 +443,7 @@
           <div class="nl-mark nl-direct" style="--x:.099"><span>Direct Forecast,<br class="nl-br"> 0.099%</span></div>
           <div class="nl-mark nl-ours" style="--x:.20"><span>ReFoRM,<br class="nl-br"> about 0.20%</span></div>
         </div>
-        <figcaption>The two estimates fall on opposite sides of the lower boundary. The question resolved as Within. All six baselines predicted Below.</figcaption>
+        <figcaption class="figure-caption"><span class="caption-title">Forecast comparison</span><span class="caption-description">The two estimates fall on opposite sides of the lower boundary. The question resolved as Within. All six baselines predicted Below.</span></figcaption>
       </figure>
     </article>
 
@@ -473,7 +474,7 @@
           <p class="case-pick">Predicts <b>Within</b> with probability 0.65</p>
         </div>
       </div>
-      <figure class="probs-figure">
+      <figure class="case-visual probs-figure">
         <div class="table-scroll">
           <table class="probs">
             <thead><tr><th scope="col">Outcome</th><th scope="col">Direct Forecast</th><th scope="col">ReFoRM</th></tr></thead>
@@ -485,7 +486,7 @@
             <tfoot><tr><th scope="row">Brier score</th><td>0.1250</td><td class="is-ours">0.0717</td></tr></tfoot>
           </table>
         </div>
-        <figcaption>Both methods select Within, which is the realized outcome. ReFoRM moves probability away from Below and receives a lower Brier score.</figcaption>
+        <figcaption class="figure-caption"><span class="caption-title">Forecast comparison</span><span class="caption-description">Both methods select Within, which is the realized outcome. ReFoRM moves probability away from Below and receives a lower Brier score.</span></figcaption>
       </figure>
     </article>
   </section>

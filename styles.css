@@ -555,6 +555,48 @@ figcaption b { font-weight: 600; color: var(--ink); }
 .probs tfoot .is-ours { color: var(--accent); font-weight: 700; }
 .probs-figure figcaption { margin-top: 12px; color: var(--muted); font-size: 16px; }
 
+/* Figure captions: a title followed by a separate explanatory line. */
+.figure-caption {display:grid;gap:6px;text-align:left}
+.caption-title {display:block;font:600 19px/1.35 var(--serif);color:var(--ink);text-wrap:balance}
+.caption-description {display:block;font:16px/1.55 var(--sans);color:var(--muted)}
+.table-figure>figcaption.figure-caption {max-width:none;margin-bottom:16px}
+.abstract-details {border-block:1px solid var(--rule);margin-top:24px;margin-bottom:12px}
+.abstract-details>summary {cursor:pointer;padding:17px 0;font:700 17px/1.45 var(--sans);color:var(--ink-2)}
+.abstract-details[open]>summary {margin-bottom:6px}
+.abstract-details>.abstract {margin-top:0;margin-bottom:20px}
+
+/* Shared layout for both paper case studies. */
+.case-head {text-align:center}
+.case-head h3 {margin:0 auto 18px;max-width:700px;min-height:2.6em;display:flex;align-items:center;justify-content:center}
+.case-options {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:760px;margin-inline:auto;text-align:center}
+.case-options>span {display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:74px;padding:11px 12px;background:var(--panel);border:1px solid var(--rule);border-radius:7px}
+.case-options b {display:block;margin:0;color:var(--ink)}
+.case-col h4,.case-pick {text-align:center}
+.case-summary {min-height:2.8em;line-height:1.4;display:flex;align-items:center;justify-content:center;text-align:center;margin:8px 0 16px}
+.case-col .trace {display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:12px;flex:1;margin-bottom:18px;text-align:left}
+.case-col .trace li {margin-bottom:0}
+.case-visual {width:min(760px,100%);margin:0 auto 8px;padding:24px;background:var(--panel);border:1px solid var(--rule);border-radius:10px}
+.case-visual .numberline {margin:0 auto 6px}
+.case-visual .probs {width:100%;min-width:0;max-width:700px;margin-inline:auto}
+.case-visual .probs th,.case-visual .probs td {padding:10px 12px;text-align:center}
+.case-visual>figcaption.figure-caption {max-width:700px;margin:18px auto 0;text-align:center}
+@media(max-width:540px) {
+ .caption-title {font-size:18px}
+ .caption-description {font-size:16px}
+ .case-options {gap:6px;font-size:14px}
+ .case-options>span {padding:10px 7px;min-height:88px}
+ .case-head h3 {min-height:5.2em}
+ .case-visual {padding:18px 14px}
+ .case-visual .probs th,.case-visual .probs td {padding:9px 6px;font-size:14px;white-space:normal}
+ .case-visual .pbar {display:block;width:100%;max-width:140px;margin:0 auto 5px}
+ .case-visual .outcome-tag {display:block;margin:3px 0 0}
+}
+
+@media(max-width:720px) {
+ .case-col .trace {display:block;flex:initial}
+ .case-col .trace li {margin-bottom:14px}
+}
+
 /* Citation */
 .bibtex { position: relative; }
 .bibtex pre { margin: 0; padding: 20px 22px; padding-right: 140px; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; font: 14.5px/1.65 var(--mono); color: var(--ink); white-space: pre-wrap; word-break: break-word; }
